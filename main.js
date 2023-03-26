@@ -2,6 +2,7 @@ const openid = require('openid-client');
 
 const generators = openid.generators;
 
+const appurl = "https://api.dev.soundauth.io";
 /*
 (async () => {
     const issuer = await Issuer.discover('https://api.dev.soundauth.io/oauth2/clients/m3go7qfno38du6o64i7a4epv2/.well-known/openid-configuration');
@@ -40,7 +41,36 @@ async function main() {
     });
 
     console.log(url)
-
 }
 
-main();
+async function test() {
+    const issuer = new openid.Issuer({
+        issuer: "soundauth",
+        authorization_endpoint: appurl + "/oauth2/authorize",
+        token_endpoint: appurl  + "/oauth2/token",
+        userinfo_endpoint: appurl + "/oauth2/userinfo",
+    });
+
+    const client = new issuer.Client({
+        client_id: "m3go7qfno38du6o64i7a4epv2",
+        client_secret: "TQV5U29k1gHibH5bx1layBo0OSAvAbRT3UYW3EWrSYBB5swxjVfWUa1BS8lqzxG",
+        redirect_uris: ["http://localhost:8080"],// [ "https://oauth.pstmn.io/v1/callback"],
+        response_types: ['code'],
+    });
+
+    const codeVerifier = generators.codeVerifier();
+    const codeChallenge = generators.codeChallenge(codeVerifier);
+
+    const url = client.authorizationUrl({
+        scope: 'openid email',
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256',
+        state: '11231123112311231123112311231123112311231123',
+
+    });
+
+    console.log(url);
+}
+
+test();
+//main();
